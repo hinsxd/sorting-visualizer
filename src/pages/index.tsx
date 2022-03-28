@@ -2,15 +2,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useRafLoop } from "react-use";
 
-import { IconButton, NativeSelect } from "@mui/material";
+import IconButton from "@mui/material/IconButton";
+import NativeSelect from "@mui/material/NativeSelect";
 
-import {
-  ArrowForwardIos,
-  FastForward,
-  Pause,
-  PlayArrow,
-  Replay,
-} from "@mui/icons-material";
+import ArrowForwardIos from "@mui/icons-material/ArrowForwardIos";
+import FastForward from "@mui/icons-material/FastForward";
+import Pause from "@mui/icons-material/Pause";
+import PlayArrow from "@mui/icons-material/PlayArrow";
+import Replay from "@mui/icons-material/Replay";
 
 import Div100vh from "react-div-100vh";
 
