@@ -1,22 +1,21 @@
 import { StepState } from "@/algorithms/type";
+import { getCompareColor } from "@/helpers/getCompareColors";
 
 export function* insertionSort(arr: number[]): Generator<StepState, StepState> {
   for (let i = 1; i < arr.length; i++) {
-    const current = arr[i];
-    let j = i - 1;
-    while (j >= 0 && arr[j] > current) {
-      arr[j + 1] = arr[j];
-      yield {
-        result: arr,
-        colors: {
-          [i]: "blue",
-          [j]: "yellow",
-          [j + 1]: "green",
-        },
-      };
+    let j = i;
+    console.log(getCompareColor(arr, j - 1, j));
+    while (j >= 1) {
+      yield { result: arr, colors: getCompareColor(arr, j - 1, j) };
+      if (arr[j] > arr[j - 1]) {
+        break;
+      }
+
+      const temp = arr[j];
+      arr[j] = arr[j - 1];
+      arr[j - 1] = temp;
       j--;
     }
-    arr[j + 1] = current;
   }
   return { result: arr };
 }
