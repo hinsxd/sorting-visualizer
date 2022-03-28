@@ -1,8 +1,15 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+.body-container {
+  display: flex;
+  flex-direction: column;
+}
+.toolbar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
 .svg-content {
+  flex-grow: 1;
   width: 100%;
   transform: scaleY(-1);
 }

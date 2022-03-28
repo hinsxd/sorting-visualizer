@@ -2,16 +2,31 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useRafLoop } from "react-use";
 
+import { IconButton, NativeSelect } from "@mui/material";
+
+import {
+  ArrowForwardIos,
+  FastForward,
+  Pause,
+  PlayArrow,
+  Replay,
+} from "@mui/icons-material";
+
+import Div100vh from "react-div-100vh";
+
 import { bubbleSort } from "@/algorithms/bubble-sort";
 
+import { insertionSort } from "@/algorithms/insertion-sort";
+
+import { StepState } from "@/algorithms/type";
+
 import type { NextPage } from "next";
-
-const ARRAY_LEN = 30;
-
+const ARRAY_LEN = 50;
+const MAX_VALUE = 5000;
 const randomArray = (length: number) => {
   const arr = [];
   for (let i = 0; i < length; i++) {
-    arr.push(Math.round(Math.random() * 1000));
+    arr.push(Math.round(Math.random() * MAX_VALUE));
   }
   return arr;
 };
@@ -22,26 +37,37 @@ enum Mode {
   PlayFast,
 }
 
-type StepResult = {
-  result: number[];
-  left: number | null;
-  right: number | null;
-};
+const algorithms = {
+  bubbleSort,
+  insertionSort,
+} as const;
+const algorithmNames = {
+  bubbleSort: "Bubble Sort",
+  insertionSort: "Insertion Sort",
+} as const;
+const algorithmKeys = Object.keys(algorithms);
 
 const Home: NextPage = () => {
   const [mode, setMode] = useState<Mode>(Mode.Pause);
-  const [sortGenerator, setSortGenerator] = useState(
-    bubbleSort(randomArray(ARRAY_LEN))
-  );
-  const [sortState, setSortState] = useState(() => sortGenerator.next());
+  const [algorithm, setAlgorithm] =
+    useState<keyof typeof algorithmNames>("bubbleSort");
 
-  const reset = () => {
-    const newGenerator = bubbleSort(randomArray(ARRAY_LEN));
+  const selectedAlgorithm = algorithms[algorithm];
+
+  const [sortGenerator, setSortGenerator] = useState(
+    selectedAlgorithm(randomArray(ARRAY_LEN))
+  );
+
+  const [sortState, setSortState] =
+    useState<IteratorResult<StepState, StepState>>();
+
+  const reset = useCallback(() => {
+    const newGenerator = selectedAlgorithm(randomArray(ARRAY_LEN));
     const next = newGenerator.next();
     setSortGenerator(newGenerator);
     setSortState(next);
     setMode(Mode.Pause);
-  };
+  }, [selectedAlgorithm]);
 
   const delta = useRef(50);
   const [loopStop, loopStart] = useRafLoop((time) => {
@@ -50,6 +76,10 @@ const Home: NextPage = () => {
       lastCalled.current = time;
     }
   });
+
+  useEffect(() => {
+    reset();
+  }, [algorithm, reset]);
 
   useEffect(() => {
     if (mode === Mode.Pause) {
@@ -67,48 +97,74 @@ const Home: NextPage = () => {
   const lastCalled = useRef(0);
 
   const nextStep = useCallback(() => {
-    if (!sortState.done) {
+    if (!sortState?.done) {
       const next = sortGenerator.next();
       setSortState(next);
       if (next.done) loopStop();
     }
-  }, [loopStop, sortGenerator, sortState.done]);
+  }, [loopStop, sortGenerator, sortState?.done]);
 
-  const { result: arr, left, right } = sortState.value;
-
+  const result = sortState?.value.result;
+  const colors = sortState?.value.colors;
   return (
-    <div>
-      <button onClick={nextStep} type="button">
-        next
-      </button>
-      <button onClick={() => setMode(Mode.Play)} type="button">
-        play
-      </button>
-      <button onClick={() => setMode(Mode.PlayFast)} type="button">
-        fast
-      </button>
-      <button onClick={() => setMode(Mode.Pause)} type="button">
-        pause
-      </button>
-      <button onClick={reset} type="button">
-        reset
-      </button>
-      <svg className="svg-content" viewBox="0 0 1000 300" transform="">
-        <rect x={0} y={0} width="100%" height="100%" stroke="black" />
-        {arr?.map((value, index) => (
+    <Div100vh className="body-container">
+      <div className="toolbar">
+        <IconButton
+          color={mode === Mode.Pause ? "primary" : "default"}
+          onClick={() => setMode(Mode.Pause)}
+          type="button"
+        >
+          <Pause />
+        </IconButton>
+        <IconButton
+          color={mode === Mode.Play ? "primary" : "default"}
+          onClick={() => setMode(Mode.Play)}
+          type="button"
+        >
+          <PlayArrow />
+        </IconButton>
+        <IconButton
+          color={mode === Mode.PlayFast ? "primary" : "default"}
+          onClick={() => setMode(Mode.PlayFast)}
+          type="button"
+        >
+          <FastForward />
+        </IconButton>
+        <IconButton onClick={nextStep} type="button">
+          <ArrowForwardIos />
+        </IconButton>
+        <IconButton onClick={reset} type="button">
+          <Replay />
+        </IconButton>
+        <NativeSelect
+          value={algorithm}
+          onChange={(e) =>
+            setAlgorithm(e.target.value as keyof typeof algorithmNames)
+          }
+        >
+          {algorithmKeys.map((key) => (
+            <option key={key} value={key}>
+              {algorithmNames[key as keyof typeof algorithmNames]}
+            </option>
+          ))}
+        </NativeSelect>
+      </div>
+      <svg className="svg-content" preserveAspectRatio="none">
+        <rect x={0} y={0} width="100%" height="100%" fill="black" />
+        {result?.map((value, index) => (
           <rect
+            stroke="black"
+            strokeWidth={1}
             key={`${index}${value}`}
-            fill={
-              index === left ? "green" : index === right ? "yellow" : "white"
-            }
-            x={index * (1000 / arr.length)}
+            fill={colors?.[index] ?? "white"}
+            x={`${(100 * index) / ARRAY_LEN}vw`}
             y={0}
-            height={(value / 1000) * 300}
-            width={1000 / arr.length}
+            height={`${(value / MAX_VALUE) * 100}%`}
+            width={`${100 / ARRAY_LEN}vw`}
           />
         ))}
       </svg>
-    </div>
+    </Div100vh>
   );
 };
 
