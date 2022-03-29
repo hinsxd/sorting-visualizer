@@ -25,7 +25,7 @@ export const algorithmNames = {
 export const algorithmKeys = Object.keys(algorithms);
 export type AlgorithmName = keyof typeof algorithmNames;
 
-export const ARRAY_LEN = 700;
+export const ARRAY_LEN = 200;
 export const MAX_VALUE = 5000;
 
 export enum Mode {

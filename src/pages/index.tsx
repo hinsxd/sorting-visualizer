@@ -60,7 +60,7 @@ const Home: NextPage = () => {
     if (mode === Mode.Play) {
       delta.current = 60;
     } else {
-      delta.current = 6;
+      delta.current = 9;
     }
   }, [loopStop, loopStart, mode]);
 
