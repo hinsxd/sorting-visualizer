@@ -1,4 +1,4 @@
-import { StepState } from "@/algorithms/type";
+import { StepState } from "@/algorithms/consts";
 import { getCompareColor } from "@/helpers/getCompareColors";
 
 export function* insertionSort(arr: number[]): Generator<StepState, StepState> {

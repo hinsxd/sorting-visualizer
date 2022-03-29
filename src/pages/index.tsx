@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { useRafLoop } from "react-use";
 
@@ -14,72 +14,42 @@ import {
 
 import Div100vh from "react-div-100vh";
 
-import { bubbleSort } from "@/algorithms/bubble-sort";
+import {
+  algorithmKeys,
+  AlgorithmName,
+  algorithmNames,
+  ARRAY_LEN,
+  MAX_VALUE,
+  Mode,
+} from "@/algorithms/consts";
 
-import { insertionSort } from "@/algorithms/insertion-sort";
-
-import { StepState } from "@/algorithms/type";
+import { useSorting } from "@/hooks/useSorting";
 
 import type { NextPage } from "next";
-const ARRAY_LEN = 50;
-const MAX_VALUE = 5000;
-const randomArray = (length: number) => {
-  const arr = [];
-  for (let i = 0; i < length; i++) {
-    arr.push(Math.round(Math.random() * MAX_VALUE));
-  }
-  return arr;
-};
-
-enum Mode {
-  Pause,
-  Play,
-  PlayFast,
-}
-
-const algorithms = {
-  bubbleSort,
-  insertionSort,
-} as const;
-const algorithmNames = {
-  bubbleSort: "Bubble Sort",
-  insertionSort: "Insertion Sort",
-} as const;
-const algorithmKeys = Object.keys(algorithms);
 
 const Home: NextPage = () => {
   const [mode, setMode] = useState<Mode>(Mode.Pause);
-  const [algorithm, setAlgorithm] =
-    useState<keyof typeof algorithmNames>("bubbleSort");
-
-  const selectedAlgorithm = algorithms[algorithm];
-
-  const [sortGenerator, setSortGenerator] = useState(
-    selectedAlgorithm(randomArray(ARRAY_LEN))
-  );
-
-  const [sortState, setSortState] =
-    useState<IteratorResult<StepState, StepState>>();
-
-  const reset = useCallback(() => {
-    const newGenerator = selectedAlgorithm(randomArray(ARRAY_LEN));
-    const next = newGenerator.next();
-    setSortGenerator(newGenerator);
-    setSortState(next);
-    setMode(Mode.Pause);
-  }, [selectedAlgorithm]);
+  const { algorithmName, setAlgorithmName, reset, nextStep, sortState } =
+    useSorting({
+      onReset: () => {
+        setMode(Mode.Pause);
+      },
+      onAlgorithmChange: () => {
+        setMode(Mode.Pause);
+      },
+    });
 
   const delta = useRef(50);
+
   const [loopStop, loopStart] = useRafLoop((time) => {
     if (time - lastCalled.current > delta.current) {
       nextStep();
       lastCalled.current = time;
     }
+    if (sortState?.done) {
+      loopStop();
+    }
   });
-
-  useEffect(() => {
-    reset();
-  }, [algorithm, reset]);
 
   useEffect(() => {
     if (mode === Mode.Pause) {
@@ -95,14 +65,6 @@ const Home: NextPage = () => {
   }, [loopStop, loopStart, mode]);
 
   const lastCalled = useRef(0);
-
-  const nextStep = useCallback(() => {
-    if (!sortState?.done) {
-      const next = sortGenerator.next();
-      setSortState(next);
-      if (next.done) loopStop();
-    }
-  }, [loopStop, sortGenerator, sortState?.done]);
 
   const result = sortState?.value.result;
   const colors = sortState?.value.colors;
@@ -137,14 +99,12 @@ const Home: NextPage = () => {
           <Replay />
         </IconButton>
         <NativeSelect
-          value={algorithm}
-          onChange={(e) =>
-            setAlgorithm(e.target.value as keyof typeof algorithmNames)
-          }
+          value={algorithmName}
+          onChange={(e) => setAlgorithmName(e.target.value as AlgorithmName)}
         >
           {algorithmKeys.map((key) => (
             <option key={key} value={key}>
-              {algorithmNames[key as keyof typeof algorithmNames]}
+              {algorithmNames[key as AlgorithmName]}
             </option>
           ))}
         </NativeSelect>
@@ -155,12 +115,12 @@ const Home: NextPage = () => {
           <rect
             stroke="black"
             strokeWidth={1}
-            key={`${index}${value}`}
+            key={index}
             fill={colors?.[index] ?? "white"}
             x={`${(100 * index) / ARRAY_LEN}vw`}
             y={0}
             height={`${(value / MAX_VALUE) * 100}%`}
-            width={`${100 / ARRAY_LEN}vw`}
+            width={`${100 / ARRAY_LEN}%`}
           />
         ))}
       </svg>
