@@ -109,7 +109,12 @@ const Home: NextPage = () => {
           ))}
         </NativeSelect>
       </div>
-      <svg className="svg-content" preserveAspectRatio="none">
+      <svg
+        className="svg-content"
+        preserveAspectRatio="none"
+        height="100%"
+        width="100%"
+      >
         <rect x={0} y={0} width="100%" height="100%" fill="black" />
         {result?.map((value, index) => (
           <rect
@@ -117,10 +122,10 @@ const Home: NextPage = () => {
             strokeWidth={1}
             key={index}
             fill={colors?.[index] ?? "white"}
-            x={`${(100 * index) / ARRAY_LEN}vw`}
+            x={`${((100 * index) / ARRAY_LEN).toFixed(3)}vw`}
             y={0}
-            height={`${(value / MAX_VALUE) * 100}%`}
-            width={`${100 / ARRAY_LEN}%`}
+            height={`${((value / MAX_VALUE) * 100).toFixed(3)}%`}
+            width={`${(100 / ARRAY_LEN).toFixed(3)}%`}
           />
         ))}
       </svg>
