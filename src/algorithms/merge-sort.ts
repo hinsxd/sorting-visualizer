@@ -36,24 +36,17 @@ export function* merge(
   const sorted: number[] = [];
 
   while (left <= middle && right <= j) {
+    yield {
+      result: arr,
+      colors: {
+        [middle]: "blue",
+        [arr[left] <= arr[right] ? left : right]: "red",
+      },
+    };
     if (arr[left] <= arr[right]) {
-      yield {
-        result: arr,
-        colors: {
-          [middle]: "blue",
-          [left]: "red",
-        },
-      };
       sorted.push(arr[left]);
       left++;
     } else {
-      yield {
-        result: arr,
-        colors: {
-          [middle]: "blue",
-          [right]: "red",
-        },
-      };
       sorted.push(arr[right]);
       right++;
     }

@@ -58,9 +58,9 @@ const Home: NextPage = () => {
     }
     loopStart();
     if (mode === Mode.Play) {
-      delta.current = 70;
+      delta.current = 60;
     } else {
-      delta.current = 15;
+      delta.current = 6;
     }
   }, [loopStop, loopStart, mode]);
 
