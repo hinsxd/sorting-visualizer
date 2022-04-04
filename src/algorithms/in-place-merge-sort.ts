@@ -55,25 +55,28 @@ export function* inPlaceMerge(
       };
       left++;
     } else {
-      const value = arr[right];
       let index = right;
-      yield {
-        result: arr,
-        colors: {
-          [left]: "yellow",
-          [index]: "green",
-        },
-      };
+
       while (index !== left) {
+        yield {
+          result: arr,
+          colors: {
+            [left]: "yellow",
+            [right]: "blue",
+            [index]: "green",
+          },
+        };
+        const temp = arr[index];
         arr[index] = arr[index - 1];
+        arr[index - 1] = temp;
         index--;
       }
-      arr[left] = value;
       yield {
         result: arr,
         colors: {
           [left + 1]: "yellow",
-          [index]: "green",
+          [right]: "blue",
+          [index]: "yellow",
         },
       };
       // Update all the pointers

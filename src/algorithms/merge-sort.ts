@@ -19,7 +19,6 @@ export function* mergeSort(
 
   yield* mergeSort(arr, i, middle);
   yield* mergeSort(arr, middle + 1, j);
-
   yield* merge(arr, i, middle, j);
 
   return { result: arr };
@@ -35,44 +34,35 @@ export function* merge(
   let right = middle + 1;
   const sorted: number[] = [];
 
-  while (left <= middle && right <= j) {
+  // Helper function to simplify repeated yields
+  function* push(index: number) {
     yield {
       result: arr,
       colors: {
         [middle]: "blue",
-        [arr[left] <= arr[right] ? left : right]: "red",
+        [index]: "red",
       },
     };
+    sorted.push(arr[index]);
+  }
+
+  while (left <= middle && right <= j) {
     if (arr[left] <= arr[right]) {
-      sorted.push(arr[left]);
+      yield* push(left);
       left++;
     } else {
-      sorted.push(arr[right]);
+      yield* push(right);
       right++;
     }
   }
 
   while (left <= middle) {
-    yield {
-      result: arr,
-      colors: {
-        [middle]: "blue",
-        [left]: "red",
-      },
-    };
-    sorted.push(arr[left]);
+    yield* push(left);
     left++;
   }
 
   while (right <= j) {
-    yield {
-      result: arr,
-      colors: {
-        [middle]: "blue",
-        [right]: "red",
-      },
-    };
-    sorted.push(arr[right]);
+    yield* push(right);
     right++;
   }
 

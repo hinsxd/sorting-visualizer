@@ -16,7 +16,7 @@ import Div100vh from "react-div-100vh";
 
 import {
   algorithmKeys,
-  AlgorithmName,
+  AlgorithmKey,
   algorithmNames,
   ARRAY_LEN,
   MAX_VALUE,
@@ -29,7 +29,7 @@ import type { NextPage } from "next";
 
 const Home: NextPage = () => {
   const [mode, setMode] = useState<Mode>(Mode.Pause);
-  const { algorithmName, setAlgorithmName, reset, nextStep, sortState } =
+  const { algorithmKey, setAlgorithmKey, reset, nextStep, sortState } =
     useSorting({
       onReset: () => {
         setMode(Mode.Pause);
@@ -39,6 +39,7 @@ const Home: NextPage = () => {
       },
     });
 
+  const lastCalled = useRef(0);
   const delta = useRef(50);
 
   const [loopStop, loopStart] = useRafLoop((time) => {
@@ -47,7 +48,7 @@ const Home: NextPage = () => {
       lastCalled.current = time;
     }
     if (sortState?.done) {
-      loopStop();
+      setMode(Mode.Pause);
     }
   });
 
@@ -63,8 +64,6 @@ const Home: NextPage = () => {
       delta.current = 9;
     }
   }, [loopStop, loopStart, mode]);
-
-  const lastCalled = useRef(0);
 
   const result = sortState?.value.result;
   const colors = sortState?.value.colors;
@@ -99,12 +98,12 @@ const Home: NextPage = () => {
           <Replay />
         </IconButton>
         <NativeSelect
-          value={algorithmName}
-          onChange={(e) => setAlgorithmName(e.target.value as AlgorithmName)}
+          value={algorithmKey}
+          onChange={(e) => setAlgorithmKey(e.target.value as AlgorithmKey)}
         >
           {algorithmKeys.map((key) => (
             <option key={key} value={key}>
-              {algorithmNames[key as AlgorithmName]}
+              {algorithmNames[key]}
             </option>
           ))}
         </NativeSelect>

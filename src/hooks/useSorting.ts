@@ -1,28 +1,23 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 
-import {
-  AlgorithmName,
-  algorithms,
-  ARRAY_LEN,
-  StepState,
-} from "@/algorithms/consts";
+import { AlgorithmKey, algorithms, ARRAY_LEN } from "@/algorithms/consts";
 import { randomArray } from "@/helpers/randomArray";
 
-export const useSorting = (props?: {
-  onReset?: any;
-  onAlgorithmChange?: any;
-}) => {
-  const [algorithmName, setAlgorithmName] =
-    useState<AlgorithmName>("mergeSort");
+type UseSortingProps = {
+  onReset?: () => void;
+  onAlgorithmChange?: (algorithm: AlgorithmKey) => void;
+};
 
-  const selectedAlgorithm = algorithms[algorithmName];
+export const useSorting = (props?: UseSortingProps) => {
+  const [algorithmKey, setAlgorithmKey] = useState<AlgorithmKey>("mergeSort");
+
+  const selectedAlgorithm = algorithms[algorithmKey];
 
   const [sortGenerator, setSortGenerator] = useState(
     selectedAlgorithm(randomArray(ARRAY_LEN))
   );
 
-  const [sortState, setSortState] =
-    useState<IteratorResult<StepState, StepState>>();
+  const [sortState, setSortState] = useState(() => sortGenerator.next());
 
   const onResetRef = useRef(props?.onReset);
   onResetRef.current = props?.onReset;
@@ -30,8 +25,8 @@ export const useSorting = (props?: {
   onAlgorithmChangeRef.current = props?.onAlgorithmChange;
 
   useEffect(() => {
-    onAlgorithmChangeRef.current?.(algorithmName);
-  }, [algorithmName]);
+    onAlgorithmChangeRef.current?.(algorithmKey);
+  }, [algorithmKey]);
 
   const reset = useCallback(() => {
     const newGenerator = selectedAlgorithm(randomArray(ARRAY_LEN));
@@ -42,18 +37,24 @@ export const useSorting = (props?: {
   }, [selectedAlgorithm]);
 
   const nextStep = useCallback(() => {
-    if (!sortState?.done) {
+    if (!sortState.done) {
       const next = sortGenerator.next();
       setSortState(next);
     }
-  }, [sortGenerator, sortState?.done]);
+  }, [sortGenerator, sortState.done]);
+
+  const mounted = useRef(false);
 
   useEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true;
+      return;
+    }
     reset();
-  }, [algorithmName, reset]);
+  }, [algorithmKey, reset]);
   return {
-    algorithmName,
-    setAlgorithmName,
+    algorithmKey,
+    setAlgorithmKey,
     reset,
     nextStep,
     sortState,

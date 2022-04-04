@@ -22,8 +22,8 @@ export const algorithmNames = {
   quickSort: "Quick Sort",
   inPlaceMergeSort: "In-Place Merge Sort",
 } as const;
-export const algorithmKeys = Object.keys(algorithms);
-export type AlgorithmName = keyof typeof algorithmNames;
+export type AlgorithmKey = keyof typeof algorithmNames;
+export const algorithmKeys = Object.keys(algorithmNames) as AlgorithmKey[];
 
 export const ARRAY_LEN = 200;
 export const MAX_VALUE = 5000;
