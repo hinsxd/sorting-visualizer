@@ -7,6 +7,7 @@ import { IconButton, NativeSelect } from "@mui/material";
 import {
   ArrowForwardIos,
   FastForward,
+  GitHub,
   Pause,
   PlayArrow,
   Replay,
@@ -70,6 +71,13 @@ const Home: NextPage = () => {
   return (
     <Div100vh className="body-container">
       <div className="toolbar">
+        <IconButton
+          target="_blank"
+          rel="noopener noreferrer"
+          href="https://github.com/hinsxd/sorting-visualizer"
+        >
+          <GitHub />
+        </IconButton>
         <IconButton
           color={mode === Mode.Pause ? "primary" : "default"}
           onClick={() => setMode(Mode.Pause)}
